@@ -5,10 +5,18 @@ import API_PATHS from "~/constants/apiPaths";
 import { OrderStatus } from "~/constants/order";
 import { Order } from "~/models/Order";
 
+type OrderResponse = {
+  statusCode: number;
+  message?: string;
+  data: {
+    orders: Order[];
+  };
+};
+
 export function useOrders() {
   return useQuery<Order[], AxiosError>("orders", async () => {
-    const res = await axios.get<Order[]>(`${API_PATHS.order}/order`);
-    return res.data;
+    const res = await axios.get<OrderResponse>(`${API_PATHS.order}/order`);
+    return res.data?.data.orders;
   });
 }
 
@@ -35,11 +43,28 @@ export function useUpdateOrderStatus() {
 
 export function useSubmitOrder() {
   return useMutation((values: Omit<Order, "id">) => {
-    return axios.put<Omit<Order, "id">>(`${API_PATHS.order}/order`, values, {
-      headers: {
-        Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
+    const payload = {
+      payment: {
+        type: "MOCK Value",
+        address: values.address,
+        creditCard: "000",
       },
-    });
+      delivery: {
+        type: "DEFAULT",
+        address: values.address,
+      },
+      comments: values.address.comment,
+    };
+
+    return axios.post<Omit<Order, "id">>(
+      `${API_PATHS.cart}/profile/cart/checkout`,
+      payload,
+      {
+        headers: {
+          Authorization: `Basic ${localStorage.getItem("authorization_token")}`,
+        },
+      }
+    );
   });
 }
 
