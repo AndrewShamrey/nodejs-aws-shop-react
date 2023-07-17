@@ -77,12 +77,29 @@ export const orders: Order[] = [
       comment: "",
     },
     items: [
-      { productId: "7567ec4b-b10c-48c5-9345-fc73c48a80aa", count: 2 },
-      { productId: "7567ec4b-b10c-45c5-9345-fc73c48a80a1", count: 5 },
+      {
+        product: { id: "7567ec4b-b10c-48c5-9345-fc73c48a80aa" },
+        productId: "7567ec4b-b10c-48c5-9345-fc73c48a80aa",
+        count: 2,
+      },
+      {
+        product: { id: "7567ec4b-b10c-45c5-9345-fc73c48a80a1" },
+        productId: "7567ec4b-b10c-45c5-9345-fc73c48a80a1",
+        count: 5,
+      },
     ],
     statusHistory: [
       { status: OrderStatus.Open, timestamp: Date.now(), comment: "New order" },
     ],
+    delivery: {
+      address: {
+        address: "some address",
+        firstName: "Name",
+        lastName: "Surname",
+        comment: "",
+      },
+    },
+    status: OrderStatus.Open,
   },
   {
     id: "2",
@@ -92,7 +109,13 @@ export const orders: Order[] = [
       lastName: "Doe",
       comment: "Ship fast!",
     },
-    items: [{ productId: "7567ec4b-b10c-48c5-9345-fc73c48a80aa", count: 3 }],
+    items: [
+      {
+        product: { id: "7567ec4b-b10c-48c5-9345-fc73c48a80aa" },
+        productId: "7567ec4b-b10c-48c5-9345-fc73c48a80aa",
+        count: 3,
+      },
+    ],
     statusHistory: [
       {
         status: OrderStatus.Sent,
@@ -100,5 +123,14 @@ export const orders: Order[] = [
         comment: "Fancy order",
       },
     ],
+    delivery: {
+      address: {
+        address: "another address",
+        firstName: "John",
+        lastName: "Doe",
+        comment: "Ship fast!",
+      },
+    },
+    status: OrderStatus.Sent,
   },
 ];

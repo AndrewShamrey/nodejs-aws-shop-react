@@ -11,6 +11,9 @@ export const AddressSchema = Yup.object({
 export type Address = Yup.InferType<typeof AddressSchema>;
 
 export const OrderItemSchema = Yup.object({
+  product: Yup.object({
+    id: Yup.string().required(),
+  }),
   productId: Yup.string().required(),
   count: Yup.number().integer().positive().required(),
 }).defined();
@@ -30,6 +33,10 @@ export const OrderSchema = Yup.object({
   items: Yup.array().of(OrderItemSchema).defined(),
   address: AddressSchema.required(),
   statusHistory: Yup.array().of(statusHistorySchema).defined(),
+  delivery: Yup.object({
+    address: AddressSchema,
+  }),
+  status: Yup.mixed<OrderStatus>().oneOf(Object.values(OrderStatus)).required(),
 }).defined();
 
 export type Order = Yup.InferType<typeof OrderSchema>;

@@ -29,21 +29,31 @@ type FormValues = {
   comment: string;
 };
 
+type OrderResponse = {
+  statusCode: number;
+  message?: string;
+  data: {
+    order: Order;
+  };
+};
+
 export default function PageOrder() {
   const { id } = useParams<{ id: string }>();
   const results = useQueries([
     {
       queryKey: ["order", { id }],
       queryFn: async () => {
-        const res = await axios.get<Order>(`${API_PATHS.order}/order/${id}`);
-        return res.data;
+        const res = await axios.get<OrderResponse>(
+          `${API_PATHS.order}/order/${id}`
+        );
+        return res.data?.data.order;
       },
     },
     {
       queryKey: "products",
       queryFn: async () => {
         const res = await axios.get<AvailableProduct[]>(
-          `${API_PATHS.bff}/product/available`
+          `${API_PATHS.bff}/products`
         );
         return res.data;
       },
@@ -58,7 +68,7 @@ export default function PageOrder() {
   const cartItems: CartItem[] = React.useMemo(() => {
     if (order && products) {
       return order.items.map((item: OrderItem) => {
-        const product = products.find((p) => p.id === item.productId);
+        const product = products.find((p) => p.id === item.product.id);
         if (!product) {
           throw new Error("Product not found");
         }
@@ -70,24 +80,24 @@ export default function PageOrder() {
 
   if (isOrderLoading || isProductsLoading) return <p>loading...</p>;
 
-  const statusHistory = order?.statusHistory || [];
-
-  const lastStatusItem = statusHistory[statusHistory.length - 1];
+  const statusHistory = [order?.status];
+  const lastStatusItem =
+    statusHistory[statusHistory.length - 1] ?? ("" as OrderStatus);
 
   return order ? (
     <PaperLayout>
       <Typography component="h1" variant="h4" align="center">
         Manage order
       </Typography>
-      <ReviewOrder address={order.address} items={cartItems} />
+      <ReviewOrder address={order.delivery.address} items={cartItems} />
       <Typography variant="h6">Status:</Typography>
       <Typography variant="h6" color="primary">
-        {lastStatusItem?.status.toUpperCase()}
+        {lastStatusItem?.toUpperCase()}
       </Typography>
       <Typography variant="h6">Change status:</Typography>
       <Box py={2}>
         <Formik
-          initialValues={{ status: lastStatusItem.status, comment: "" }}
+          initialValues={{ status: lastStatusItem, comment: "" }}
           enableReinitialize
           onSubmit={(values) =>
             updateOrderStatus(
@@ -158,12 +168,10 @@ export default function PageOrder() {
             {statusHistory.map((statusHistoryItem) => (
               <TableRow key={order.id}>
                 <TableCell component="th" scope="row">
-                  {statusHistoryItem.status.toUpperCase()}
+                  {(statusHistoryItem ?? "").toUpperCase()}
                 </TableCell>
-                <TableCell align="right">
-                  {new Date(statusHistoryItem.timestamp).toString()}
-                </TableCell>
-                <TableCell align="right">{statusHistoryItem.comment}</TableCell>
+                <TableCell align="right">{new Date().toString()}</TableCell>
+                <TableCell align="right">mock admins comment</TableCell>
               </TableRow>
             ))}
           </TableBody>
